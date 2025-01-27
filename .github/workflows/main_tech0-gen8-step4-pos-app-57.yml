@@ -41,7 +41,6 @@ jobs:
             ${{ runner.os }}-nextjs-
 
       - name: Clean install dependencies
-        working-directory: frontend
         run: |
           echo "Current directory:"
           pwd
@@ -52,13 +51,11 @@ jobs:
           NODE_ENV: production
 
       - name: Build application
-        working-directory: frontend
         run: npm run build
         env:
           NODE_ENV: production
 
       - name: Prepare files for deployment
-        working-directory: frontend
         run: |
           mkdir deploy
           cp -r .next deploy/
@@ -75,7 +72,7 @@ jobs:
           npm install -g next
           # 開発用の依存関係を削除
           npm prune --production
-          zip -r ../../release.zip ./*
+          zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
