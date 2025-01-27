@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: POSアプリ/frontend
 
     steps:
       - uses: actions/checkout@v4
@@ -32,22 +35,17 @@ jobs:
             ${{ runner.os }}-nextjs-
 
       - name: Clean install dependencies
-        run: |
-          cd POSアプリ/frontend
-          npm ci
+        run: npm ci
         env:
           NODE_ENV: production
 
       - name: Build application
-        run: |
-          cd POSアプリ/frontend
-          npm run build
+        run: npm run build
         env:
           NODE_ENV: production
 
       - name: Prepare files for deployment
         run: |
-          cd POSアプリ/frontend
           mkdir deploy
           cp -r .next deploy/
           cp -r node_modules deploy/
