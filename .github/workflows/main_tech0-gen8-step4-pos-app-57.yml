@@ -51,6 +51,7 @@ jobs:
           mkdir deploy
           cp -r .next deploy/
           cp -r node_modules deploy/
+          cp -r node_modules/.bin deploy/node_modules/
           if [ -d "public" ]; then
             cp -r public deploy/
           fi
@@ -58,6 +59,8 @@ jobs:
           cp package-lock.json deploy/
           cp next.config.js deploy/
           cd deploy
+          # 開発用の依存関係を削除する前にnextをグローバルにインストール
+          npm install -g next
           # 開発用の依存関係を削除
           npm prune --production
           zip -r ../../../release.zip ./*
