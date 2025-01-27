@@ -19,12 +19,27 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: '18.x'
 
-      - name: npm install, build
-        run: |
-          npm install
-          npm run build
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
+      - name: Clean install dependencies
+        run: npm ci
+        env:
+          NODE_ENV: production
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
 
       - name: Prepare files for deployment
         run: |
@@ -38,6 +53,8 @@ jobs:
           cp package-lock.json deploy/
           cp next.config.js deploy/
           cd deploy
+          # 開発用の依存関係を削除
+          npm prune --production
           zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment job
