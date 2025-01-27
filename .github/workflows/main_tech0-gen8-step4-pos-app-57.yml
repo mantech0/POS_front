@@ -40,24 +40,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-
 
-      - name: Clean install dependencies
+      - name: Move to frontend directory
         run: |
+          echo "Current directory before move:"
+          pwd
           ls -la
-          cd "POSアプリ/frontend"
-          npm ci
+          echo "Moving to frontend directory..."
+          cd frontend || exit 1
+          echo "Current directory after move:"
+          pwd
+          ls -la
+
+      - name: Clean install dependencies
+        working-directory: frontend
+        run: npm ci
         env:
           NODE_ENV: production
 
       - name: Build application
-        run: |
-          cd "POSアプリ/frontend"
-          npm run build
+        working-directory: frontend
+        run: npm run build
         env:
           NODE_ENV: production
 
       - name: Prepare files for deployment
+        working-directory: frontend
         run: |
-          cd "POSアプリ/frontend"
           mkdir deploy
           cp -r .next deploy/
           cp -r node_modules deploy/
@@ -73,7 +81,7 @@ jobs:
           npm install -g next
           # 開発用の依存関係を削除
           npm prune --production
-          zip -r ../../../release.zip ./*
+          zip -r ../../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
