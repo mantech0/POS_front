@@ -12,12 +12,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: POSアプリ/frontend
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Debug directory structure
+        run: |
+          pwd
+          ls -la
+          find . -type d
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
@@ -35,17 +38,22 @@ jobs:
             ${{ runner.os }}-nextjs-
 
       - name: Clean install dependencies
-        run: npm ci
+        run: |
+          cd frontend
+          npm ci
         env:
           NODE_ENV: production
 
       - name: Build application
-        run: npm run build
+        run: |
+          cd frontend
+          npm run build
         env:
           NODE_ENV: production
 
       - name: Prepare files for deployment
         run: |
+          cd frontend
           mkdir deploy
           cp -r .next deploy/
           cp -r node_modules deploy/
@@ -61,7 +69,7 @@ jobs:
           npm install -g next
           # 開発用の依存関係を削除
           npm prune --production
-          zip -r ../../../release.zip ./*
+          zip -r ../../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
