@@ -62,13 +62,13 @@ jobs:
           ls -la
           ls -la .next
           npm prune --production
-          zip -r ../release.zip ./*
+          zip -r ../app.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: release.zip
+          path: app.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -83,11 +83,13 @@ jobs:
         with:
           name: node-app
 
-      - name: Unzip artifact for deployment
+      - name: Prepare deployment package
         run: |
-          unzip release.zip
-          ls -la
-          ls -la .next
+          mkdir deploy
+          mv app.zip deploy/
+          cd deploy
+          unzip app.zip
+          rm app.zip
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -95,5 +97,5 @@ jobs:
         with:
           app-name: 'tech0-gen8-step4-pos-app-57'
           slot-name: 'Production'
-          package: .
+          package: deploy
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98F1AE24F542429CACBCF21DE4D547D7 }} 
