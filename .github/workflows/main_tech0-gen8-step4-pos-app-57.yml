@@ -16,6 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug directory structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Full directory structure:"
+          find . -type d
+
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
@@ -33,21 +42,25 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd POS-App/frontend
+          echo "Current location:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          cd frontend
           npm ci
         env:
           NODE_ENV: production
 
       - name: Build application
         run: |
-          cd POS-App/frontend
+          cd frontend
           npm run build
         env:
           NODE_ENV: production
 
       - name: Prepare files for deployment
         run: |
-          cd POS-App/frontend
+          cd frontend
           mkdir -p deploy
           cp -r .next deploy/
           cp -r node_modules deploy/
@@ -58,7 +71,7 @@ jobs:
           ls -la
           ls -la .next
           npm prune --production
-          zip -r ../../../release.zip ./*
+          zip -r ../../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
