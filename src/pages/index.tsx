@@ -23,7 +23,9 @@ const Home: NextPage = () => {
 
   const handleCodeSubmit = async () => {
     if (!code) {
-      alert('商品コードを入力してください');
+      if (!isScanning) {  // スキャン中でない場合のみアラートを表示
+        alert('商品コードを入力してください');
+      }
       return;
     }
     
@@ -147,19 +149,21 @@ const Home: NextPage = () => {
         </div>
       )}
 
-      <div className={styles.cartArea}>
-        <h3>購入リスト</h3>
-        {cart.map((item, index) => (
-          <div key={index} className={styles.cartItem}>
-            <div>
-              {item.NAME} x{item.quantity} {item.PRICE}円
+      {cart.length > 0 && (
+        <div className={styles.cartArea}>
+          <h3>購入リスト</h3>
+          {cart.map((item, index) => (
+            <div key={index} className={styles.cartItem}>
+              <div>
+                {item.NAME} x{item.quantity} {item.PRICE}円
+              </div>
+              <div>
+                {item.PRICE * item.quantity}円
+              </div>
             </div>
-            <div>
-              {item.PRICE * item.quantity}円
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <button 
         className={styles.purchaseButton}

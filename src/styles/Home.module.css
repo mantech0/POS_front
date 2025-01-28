@@ -2,6 +2,7 @@
     padding: 1rem;
     max-width: 800px;
     margin: 0 auto;
+    box-sizing: border-box;
   }
   
   .inputArea {
@@ -9,6 +10,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .inputArea input {
@@ -17,6 +20,8 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
+    box-sizing: border-box;
+    margin: 0;
   }
   
   .inputArea button {
