@@ -16,15 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug directory structure
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -la
-          echo "Full directory structure:"
-          find . -type d
-
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
@@ -50,6 +41,13 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Verify build output
+        run: |
+          echo "Checking .next directory contents:"
+          ls -la .next
+          echo "Checking for BUILD_ID:"
+          cat .next/BUILD_ID
+
       - name: Prepare files for deployment
         run: |
           mkdir -p deploy
@@ -59,10 +57,14 @@ jobs:
           cp package-lock.json deploy/
           cp next.config.js deploy/
           cd deploy
+          echo "Checking deployment package contents:"
           ls -la
+          echo "Checking .next directory in deployment package:"
           ls -la .next
+          echo "Verifying BUILD_ID in deployment package:"
+          cat .next/BUILD_ID
           npm prune --production
-          zip -r ../app.zip ./*
+          zip -r ../app.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -89,6 +91,12 @@ jobs:
           mv app.zip deploy/
           cd deploy
           unzip app.zip
+          echo "Checking deployment package contents:"
+          ls -la
+          echo "Checking .next directory:"
+          ls -la .next
+          echo "Verifying BUILD_ID:"
+          cat .next/BUILD_ID
           rm app.zip
 
       - name: 'Deploy to Azure Web App'
