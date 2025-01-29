@@ -29,7 +29,9 @@ const Home: NextPage = () => {
     }
     
     try {
-      const apiUrl = 'http://localhost:8000';  // ローカル環境用
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://tech0-gen8-step4-pos-app-58.azurewebsites.net'  // 本番環境
+        : 'http://localhost:8000';  // ローカル環境
       console.log(`Requesting: ${apiUrl}/api/products/${code}`);
       const response = await fetch(`${apiUrl}/api/products/${code}`, {
         method: 'GET',
@@ -80,7 +82,9 @@ const Home: NextPage = () => {
 
   const handlePurchase = async () => {
     try {
-      const apiUrl = 'http://localhost:8000';  // ローカル環境用
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? 'https://tech0-gen8-step4-pos-app-58.azurewebsites.net'  // 本番環境
+        : 'http://localhost:8000';  // ローカル環境
       const response = await fetch(`${apiUrl}/api/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
