@@ -23,7 +23,7 @@ const Home: NextPage = () => {
 
   const handleCodeSubmit = async () => {
     if (!code) {
-      alert('商品が見つかりません');
+      alert('商品がマスタ未登録です');
       setCurrentProduct(null);
       return;
     }
@@ -43,11 +43,11 @@ const Home: NextPage = () => {
       
       if (!response || !response.ok) {
         if (response && response.status === 404) {
-          alert('商品が見つかりません');
+          alert('商品がマスタ未登録です');
           setCurrentProduct(null);
           return;
         } else {
-          alert('商品が見つかりません');
+          alert('商品がマスタ未登録です');
         }
         return;
       }
@@ -57,7 +57,7 @@ const Home: NextPage = () => {
       setCurrentProduct(product);
     } catch (error) {
       console.error('Error:', error);
-      alert('商品が見つかりません');
+      alert('商品がマスタ未登録です');
     }
   }
 
