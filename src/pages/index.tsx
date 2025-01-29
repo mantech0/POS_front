@@ -23,14 +23,13 @@ const Home: NextPage = () => {
 
   const handleCodeSubmit = async () => {
     if (!code) {
-      if (!isScanning) {  // スキャン中でない場合のみアラートを表示
-        alert('商品コードを入力してください');
-      }
+      alert('商品が見つかりません');
+      setCurrentProduct(null);
       return;
     }
     
     try {
-      const apiUrl = 'https://tech0-gen8-step4-pos-app-58.azurewebsites.net';
+      const apiUrl = 'http://localhost:8000';  // ローカル環境用
       console.log(`Requesting: ${apiUrl}/api/products/${code}`);
       const response = await fetch(`${apiUrl}/api/products/${code}`, {
         method: 'GET',
@@ -38,17 +37,15 @@ const Home: NextPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-      }).catch(error => {
-        console.error('Fetch error:', error);
-        throw new Error(`接続エラー: バックエンドサーバーが起動していないか、アクセスできません。(${error.message})`);
       });
       
-      if (!response.ok) {
-        if (response.status === 404) {
+      if (!response || !response.ok) {
+        if (response && response.status === 404) {
           alert('商品が見つかりません');
+          setCurrentProduct(null);
+          return;
         } else {
-          const errorData = await response.json();
-          alert(`エラーが発生しました: ${errorData.detail || response.statusText}`);
+          alert('商品が見つかりません');
         }
         return;
       }
@@ -58,7 +55,7 @@ const Home: NextPage = () => {
       setCurrentProduct(product);
     } catch (error) {
       console.error('Error:', error);
-      alert(error instanceof Error ? error.message : 'エラーが発生しました');
+      alert('商品が見つかりません');
     }
   }
 
@@ -83,7 +80,7 @@ const Home: NextPage = () => {
 
   const handlePurchase = async () => {
     try {
-      const apiUrl = 'https://tech0-gen8-step4-pos-app-58.azurewebsites.net';
+      const apiUrl = 'http://localhost:8000';  // ローカル環境用
       const response = await fetch(`${apiUrl}/api/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,17 +96,25 @@ const Home: NextPage = () => {
       })
 
       if (response.ok) {
-        const result = await response.json()
-        alert(`合計金額: ${result.total_amount}円（税込）`)
-        setCart([])
+        const result = await response.json();
+        const totalAmount = result.total_amount;
+        const totalAmountExTax = result.total_amount_ex_tax;
+        
+        if (typeof totalAmount === 'number' && typeof totalAmountExTax === 'number') {
+          alert(`合計金額（税込）: ${totalAmount}円\n合計金額（税抜）: ${totalAmountExTax}円`);
+          setCart([]);
+          setCurrentProduct(null);
+        } else {
+          alert('金額の計算に問題が発生しました');
+        }
       } else {
-        const errorData = await response.json()
-        console.error('Purchase error:', errorData)
-        alert('購入処理中にエラーが発生しました')
+        const errorData = await response.json();
+        console.error('Purchase error:', errorData);
+        alert('購入処理中にエラーが発生しました');
       }
     } catch (error) {
-      console.error('Error:', error)
-      alert('購入処理中にエラーが発生しました')
+      console.error('Error:', error);
+      alert('購入処理中にエラーが発生しました');
     }
   }
 
@@ -140,7 +145,7 @@ const Home: NextPage = () => {
         </div>
       )}
 
-      {currentProduct && (
+      {currentProduct && currentProduct.NAME !== '商品がマスタ未登録です' && (
         <div className={styles.productInfo}>
           <div>{currentProduct.CODE}</div>
           <div>{currentProduct.NAME}</div>
@@ -149,21 +154,19 @@ const Home: NextPage = () => {
         </div>
       )}
 
-      {cart.length > 0 && (
-        <div className={styles.cartArea}>
-          <h3>購入リスト</h3>
-          {cart.map((item, index) => (
-            <div key={index} className={styles.cartItem}>
-              <div>
-                {item.NAME} x{item.quantity} {item.PRICE}円
-              </div>
-              <div>
-                {item.PRICE * item.quantity}円
-              </div>
+      <div className={styles.cartArea}>
+        <h3>購入リスト</h3>
+        {cart.map((item, index) => (
+          <div key={index} className={styles.cartItem}>
+            <div>
+              {item.NAME} x{item.quantity} {item.PRICE}円
             </div>
-          ))}
-        </div>
-      )}
+            <div>
+              {item.PRICE * item.quantity}円
+            </div>
+          </div>
+        ))}
+      </div>
 
       <button 
         className={styles.purchaseButton}
